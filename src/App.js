@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
+
+const getUser = () => Promise.resolve({ id: 1, name: 'Nikita' });
 
 const Search = ({ value, onChange, children }) => (
   <div>
@@ -12,17 +14,37 @@ const Search = ({ value, onChange, children }) => (
       onChange={onChange}
       value="testValue"
       placeholder="some text..."
+      required
+    />
+    <label htmlFor="name">Name</label>
+    <input
+      id="name"
+      type="text"
+      value={value}
+      onChange={onChange}
+      placeholder="Enter your name"
     />
     <img
+      style={{ width: '70px', height: '100px' }}
+      className="image"
       src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Friendly_Female_Koala.JPG/1024px-Friendly_Female_Koala.JPG"
       alt="image"
-      style={{ width: '70px', height: '100px' }}
     />
   </div>
 );
 
 const App = () => {
   const [search, setSearch] = useState('');
+  const [user, setUser] = useState('');
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const user = await getUser();
+      setUser(user);
+    };
+
+    loadUser();
+  }, []);
 
   const handleChange = ({ target }) => {
     setSearch(target.value);
@@ -30,6 +52,7 @@ const App = () => {
 
   return (
     <div>
+      {user && <h2>Logged in as {user.name}</h2>}
       <Search value={search} onChange={handleChange}>
         Search:
       </Search>
