@@ -11,6 +11,6 @@ describe('App', () => {
     expect(screen.getByLabelText(/search/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/some/i)).toBeInTheDocument();
     expect(screen.getByAltText('image')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('testValue')).toBeInTheDocument();
+    expect(screen.getByDisplayValue(/testValue/i)).toBeInTheDocument();
   });
 });
