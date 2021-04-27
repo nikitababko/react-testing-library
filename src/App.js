@@ -16,14 +16,6 @@ const Search = ({ value, onChange, children }) => (
       placeholder="some text..."
       required
     />
-    <label htmlFor="name">Name</label>
-    <input
-      id="name"
-      type="text"
-      value={value}
-      onChange={onChange}
-      placeholder="Enter your name"
-    />
     <img
       style={{ width: '70px', height: '100px' }}
       className="image"
