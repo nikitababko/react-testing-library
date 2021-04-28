@@ -8,26 +8,19 @@ const Search = ({ value, onChange, children }) => (
   <div>
     <label htmlFor="search">{children}</label>
     <input
+      placeholder="search text..."
       id="search"
       type="text"
       value={value}
       onChange={onChange}
-      value="testValue"
-      placeholder="some text..."
-      required
-    />
-    <img
-      style={{ width: '70px', height: '100px' }}
-      className="image"
-      src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Friendly_Female_Koala.JPG/1024px-Friendly_Female_Koala.JPG"
-      alt="image"
+      // required
     />
   </div>
 );
 
 const App = () => {
   const [search, setSearch] = useState('');
-  const [user, setUser] = useState('');
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -45,8 +38,9 @@ const App = () => {
   return (
     <div>
       {user && <h2>Logged in as {user.name}</h2>}
+      <img className="image" src="" alt="search image" />
       <Search value={search} onChange={handleChange}>
-        Search:
+        SEARCH:
       </Search>
       <p>Searches for {search ? search : '...'}</p>
     </div>
