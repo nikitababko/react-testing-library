@@ -34,6 +34,7 @@ describe('Portal', () => {
         <div>My portal</div>
       </Modal>
     );
+
     expect(getByText('My portal')).toBeInTheDocument();
     userEvent.click(getByText(/close/i));
     expect(handleClose).toHaveBeenCalledTimes(1);
@@ -45,6 +46,7 @@ describe('Portal', () => {
         <div>My portal</div>
       </Modal>
     );
+
     expect(getByText('My portal')).toBeInTheDocument();
     unmount();
     expect(queryByText('My portal')).not.toBeInTheDocument();
