@@ -1,81 +1,66 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, findAllByRole, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import App from './App';
+import axios from 'axios';
+
+jest.mock('axios');
+
+const hits = [
+  {
+    objectID: '1',
+    title: 'Angular',
+  },
+  {
+    objectID: '2',
+    title: 'React',
+  },
+];
 
 describe('App', () => {
-  test('renders App component', async () => {
-    render(<App />);
-    await screen.findByText(/Logged in as/);
-    expect(screen.queryByText(/Searches for React/)).toBeNull();
-    // fireEvent.change(screen.getByRole("textbox"), {
-    //   target: { value: "React" },
-    // });
+  it('Fetches news from an API', async () => {
+    axios.get.mockImplementationOnce(() => {
+      return Promise.resolve({
+        data: { hits },
+      });
+    });
 
-    // Аналог fireEvent-а выше
-    userEvent.type(screen.getByRole('textbox'), 'React');
-    expect(screen.getByText(/Searches for React/)).toBeInTheDocument();
-  });
-});
+    const { getByRole, findAllByRole } = render(<App />);
 
-describe('events', () => {
-  it('checkbox click', () => {
-    const handleChange = jest.fn();
-    const { container } = render(<input type="checkbox" onChange={handleChange} />);
-    const checkbox = container.firstChild;
-    expect(checkbox).not.toBeChecked();
-    fireEvent.click(checkbox);
-    expect(checkbox).toBeChecked();
-  });
+    userEvent.click(getByRole('button'));
+    const items = await findAllByRole('listitem');
+    expect(items).toHaveLength(2);
 
-  it('double click', () => {
-    const onChange = jest.fn();
-    const { container } = render(<input type="checkbox" onChange={onChange} />);
-    const checkbox = container.firstChild;
-    expect(checkbox).not.toBeChecked();
-    userEvent.dblClick(checkbox);
-    expect(onChange).toHaveBeenCalledTimes(2);
-  });
-
-  it('focus', () => {
-    const { getAllByTestId } = render(
-      <div>
-        <input data-testid="element" type="checkbox" />
-        <input data-testid="element" type="radio" />
-        <input data-testid="element" type="number" />
-      </div>
+    // Additional
+    expect(axios.get).toHaveBeenCalledTimes(1);
+    expect(axios.get).toHaveBeenCalledWith(
+      'http://hn.algolia.com/api/v1/search?query=React'
     );
-
-    const [checkbox, radio, number] = getAllByTestId('element');
-    userEvent.tab();
-    expect(checkbox).toHaveFocus();
-
-    userEvent.tab();
-    expect(radio).toHaveFocus();
-
-    userEvent.tab();
-    expect(number).toHaveFocus();
   });
 
-  it('select option', () => {
-    const { selectOptions, getByRole, getByText } = render(
-      <select>
-        <option value="1">A</option>
-        <option value="2">B</option>
-        <option value="3">C</option>
-      </select>
-    );
+  it('Fetches news from an API and reject', async () => {
+    axios.get.mockImplementationOnce(() => {
+      return Promise.reject(new Error());
+    });
 
-    userEvent.selectOptions(getByRole('combobox'), '1');
-    expect(getByText('A').selected).toBeTruthy();
+    const { getByRole, findByText } = render(<App />);
 
-    userEvent.selectOptions(getByRole('combobox'), '2');
-    expect(getByText('B').selected).toBeTruthy();
-    expect(getByText('A').selected).toBeFalsy();
+    userEvent.click(getByRole('button'));
+    const message = await findByText(/Something went wrong/);
+    expect(message).toBeInTheDocument();
+  });
 
-    userEvent.selectOptions(getByRole('combobox'), '3');
-    expect(getByText('C').selected).toBeTruthy();
-    expect(getByText('B').selected).toBeFalsy();
+  it('Fetches news from an API (alternative)', async () => {
+    const promise = Promise.resolve({
+      data: { hits },
+    });
+    axios.get.mockImplementationOnce(() => promise);
+
+    const { getByRole, getAllByRole } = render(<App />);
+
+    userEvent.click(getByRole('button'));
+    await act(() => promise);
+    expect(getAllByRole('listitem')).toHaveLength(2);
   });
 });
